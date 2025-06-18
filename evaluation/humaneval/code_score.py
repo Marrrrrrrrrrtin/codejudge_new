@@ -9,6 +9,7 @@ sys.path.append(
 from code_model_score import form_filling, answer_to_score, load_model
 from prompts import single_step_prompt, dual_step_prompt
 
+
 import torch
 from tqdm import tqdm
 
@@ -114,9 +115,10 @@ def single_step_workflow(
                 "LANGUAGE": test_case.split("-")[0],
             },
         )
-        code_gpt_score = answer_to_score(code_gpt_answer, return_type)
+        code_gpt_score = answer_to_score(code_gpt_answer, return_type, model)
         new_result = {
             "pass": item["pass"],
+            'question': nl[item["question_id"]],
             "program": program,
             "canonical_solution": canonical_solution,
             "code_gpt_score": {
@@ -202,9 +204,10 @@ def dual_step_workflow(
             max_tokens=10,
         )
 
-        code_gpt_score = answer_to_score(code_gpt_answer, return_type)
+        code_gpt_score = answer_to_score(code_gpt_answer, return_type, model)
         new_result = {
             "pass": item["pass"],
+            'question': nl[item["question_id"]],
             "program": program,
             "canonical_solution": canonical_solution,
             "code_gpt_score": {
@@ -234,8 +237,9 @@ def router(
     overwrite,
     analyze_prompt=None,
     compare_prompt=None,
-    file_name=None,
+    file_name=None
 ):
+   
     for index in range(num_samples):
         full_file_name = f"{file_name}-sample-{index}.json"
         if step == 1:
@@ -291,7 +295,6 @@ def main():
     return_type = args.return_type
     num_samples = args.num_samples
     overwrite = args.overwrite
-
     if step == 1:
         analyze_prompt = None
         compare_prompt = single_step_prompt[compare_prompt_index]
@@ -320,7 +323,7 @@ def main():
         overwrite,
         analyze_prompt=analyze_prompt,
         compare_prompt=compare_prompt,
-        file_name=file_name,
+        file_name=file_name
     )
 
 

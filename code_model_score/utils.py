@@ -8,6 +8,7 @@ from collections import Counter
 from transformers import AutoTokenizer
 import transformers
 import torch
+from vllm import LLM, SamplingParams
 
 model_cache = {}
 
@@ -41,7 +42,7 @@ def load_model(model, root_path="./model"):
             pipeline.tokenizer.eos_token_id,
             pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
         ]
-    elif model.startswith("gpt"):
+    elif model.startswith("gpt") or model.startswith('Qwen'):
         terminators = None
         pipeline = None
     else:
@@ -99,6 +100,7 @@ def process_raw_content(content, aspect):
 
 def answer_to_score(answer, return_type):
     lines = answer.split("\n")
+    '''
     if return_type == "bool":
         last_line = lines[-1].strip()
         first_line = lines[0].strip()
@@ -109,6 +111,23 @@ def answer_to_score(answer, return_type):
         else:
             print(f"Invalid answer: {answer}")
             return -1.0
+    '''
+
+    if return_type == "bool":
+        prompt = """You are a code correctness analyzer. Your task is to analyze the given code analysis and determine if the code is correct or not.
+
+        Given the following code analysis:
+        {answer}
+
+        Based on this analysis, is the code correct? Answer with ONLY 'yes' if the code is correct, or 'no' if it is not correct. Do not include any other text or explanation in your response."""
+        llm = LLM(model="Qwen/Qwen2.5-Coder-14B-Instruct",
+        gpu_memory_utilization=.8,
+        max_model_len=512)
+        sampling_params = SamplingParams(temperature=0.9,
+                                 max_tokens=5000)
+        outputs = llm.generate(prompt.format(answer=answer), sampling_params)
+        return 'yes' in outputs[0].outputs[0].text.strip().lower()
+
     elif return_type == "score":
         for line in lines:
             try:

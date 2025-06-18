@@ -1,6 +1,12 @@
 import copy
 
 from .utils import openai_request
+from vllm import LLM, SamplingParams
+
+
+
+
+
 
 
 def code_llama_prompt(message):
@@ -74,6 +80,16 @@ def form_filling(
                 place_holder = "{{" + place_holder + "}}"
                 if place_holder in item["content"]:
                     item["content"] = item["content"].replace(place_holder, text).strip()
+                    
+    if model.startswith('Qwen'):
+        llm = LLM(model="Qwen/Qwen2.5-Coder-14B-Instruct",
+        gpu_memory_utilization=.05,
+        max_model_len=512)
+        sampling_params = SamplingParams(temperature=temperature,
+                                 max_tokens=max_tokens)
+        outputs = llm.generate(message, sampling_params)
+        return outputs
+
 
     if model.startswith("gpt-4") or model.startswith("gpt-3.5-turbo"):
         return openai_request(
