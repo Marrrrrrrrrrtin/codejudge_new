@@ -115,7 +115,7 @@ def single_step_workflow(
                 "LANGUAGE": test_case.split("-")[0],
             },
         )
-        code_gpt_score = answer_to_score(code_gpt_answer, return_type, model)
+        code_gpt_score = answer_to_score(code_gpt_answer, return_type)
         new_result = {
             "pass": item["pass"],
             'question': nl[item["question_id"]],
@@ -204,7 +204,7 @@ def dual_step_workflow(
             max_tokens=10,
         )
 
-        code_gpt_score = answer_to_score(code_gpt_answer, return_type, model)
+        code_gpt_score = answer_to_score(code_gpt_answer, return_type)
         new_result = {
             "pass": item["pass"],
             'question': nl[item["question_id"]],

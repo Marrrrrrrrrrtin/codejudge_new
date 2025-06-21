@@ -1,7 +1,7 @@
 import copy
 
 from .utils import openai_request
-from vllm import LLM, SamplingParams
+from .llm import vllm_server
 
 
 
@@ -82,12 +82,7 @@ def form_filling(
                     item["content"] = item["content"].replace(place_holder, text).strip()
                     
     if model.startswith('Qwen'):
-        llm = LLM(model="Qwen/Qwen2.5-Coder-14B-Instruct",
-        gpu_memory_utilization=.05,
-        max_model_len=512)
-        sampling_params = SamplingParams(temperature=temperature,
-                                 max_tokens=max_tokens)
-        outputs = llm.generate(message, sampling_params)
+        outputs = vllm_server(message)
         return outputs
 
 

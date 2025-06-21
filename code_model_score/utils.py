@@ -8,7 +8,8 @@ from collections import Counter
 from transformers import AutoTokenizer
 import transformers
 import torch
-from vllm import LLM, SamplingParams
+from .llm import vllm_server
+
 
 model_cache = {}
 
@@ -120,13 +121,12 @@ def answer_to_score(answer, return_type):
         {answer}
 
         Based on this analysis, is the code correct? Answer with ONLY 'yes' if the code is correct, or 'no' if it is not correct. Do not include any other text or explanation in your response."""
-        llm = LLM(model="Qwen/Qwen2.5-Coder-14B-Instruct",
-        gpu_memory_utilization=.8,
-        max_model_len=512)
-        sampling_params = SamplingParams(temperature=0.9,
-                                 max_tokens=5000)
-        outputs = llm.generate(prompt.format(answer=answer), sampling_params)
-        return 'yes' in outputs[0].outputs[0].text.strip().lower()
+        message = prompt.format(answer=answer)
+        result = vllm_server(message)
+        if not result:
+            print(f"Invalid answer: {result}")
+            return -1.0
+        return 'yes' in result.strip().lower()
 
     elif return_type == "score":
         for line in lines:
@@ -216,6 +216,7 @@ def answer_to_score(answer, return_type):
             "Function or variable not defined": "fatal",
             "Code not completed": "fatal",
         }
+
         def parse_json_list(s: str) -> list:
             json_list_match = re.search(r"\[\s*?\{.*?\}\s*?\]", s, re.DOTALL)
             if json_list_match:
@@ -311,7 +312,8 @@ def answer_to_score(answer, return_type):
 
 def openai_request(message, model, temperature=0, top_p=1, max_tokens=2000, stop=None):
     if os.environ.get("OPENAI_API_KEY") is None:
-        raise Exception("Please set the environment variable OPENAI_API_KEY=<API-KEY>")
+        raise Exception(
+            "Please set the environment variable OPENAI_API_KEY=<API-KEY>")
     client = OpenAI(
         api_key=os.environ.get("OPENAI_API_KEY"),
     )
@@ -348,10 +350,12 @@ def openai_request(message, model, temperature=0, top_p=1, max_tokens=2000, stop
             print(openai.api_key)
             print(e)
             time.sleep(rate_limit_delay)
-            print(f">>> Rate limit exceeded, retrying attempt {i + 1} of {retries}...")
+            print(
+                f">>> Rate limit exceeded, retrying attempt {i + 1} of {retries}...")
         except openai.APIConnectionError as e:
             print(e)
             time.sleep(time_out_delay)
-            print(f">>> API connection error, retrying attempt {i + 1} of {retries}...")
+            print(
+                f">>> API connection error, retrying attempt {i + 1} of {retries}...")
 
     raise Exception("Failed to get a response after multiple retries.")
