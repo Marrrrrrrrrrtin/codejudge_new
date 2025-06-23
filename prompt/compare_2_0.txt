@@ -1,0 +1,24 @@
+[{'role': 'system', 'content': 'You will be provided with an analysis result of a code snippet.
+If the analysis believes that the code snippet is correct, output: "Yes". Otherwise, output: "No".
+'}, {'role': 'user', 'content': 'Analysis Result:"""
+{{MISTAKES}}
+"""
+'}, {'role': 'assistant', 'content': 'Final Answer (Yes or No):
+'}]
+
+
+
+
+
+
+[{'role': 'system', 'content': 'You will be provided with a problem statement and a code snippet that supposedly addresses the problem in {{LANGUAGE}}.
+Your task is to check if the code snippet covers the required functionalities. Think step by step.
+'}, {'role': 'user', 'content': 'Problem Statement: """
+{{PROBLEM}}
+{{EXAMPLE}}
+"""
+Code Snippet: """{{LANGUAGE}}
+{{CODE1}}
+"""
+'}, {'role': 'assistant', 'content': 'Evaluation:
+'}]

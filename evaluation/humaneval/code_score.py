@@ -329,3 +329,41 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+'''
+test code to extract prompts from the codebase
+import os
+import sys
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
+from prompts import single_step_prompt, dual_step_prompt
+def prompt_extract():
+    folder = '/mnt/task_runtime/shiyl_workspace/workspace/code-judge/codejudge_new/prompt'
+    for c in [0,2,4,8]:
+        for a in [0,1]:
+            path = f'{folder}/compare_{c}_{a}.txt'
+            with open(path, 'w') as f:
+                # Write analyze prompt
+                analyze_content = str(dual_step_prompt["analyze_prompt"][a])
+                # Replace any literal \n with actual newlines
+                analyze_content = analyze_content.replace('\\n', '\n')
+                f.write(analyze_content)
+                
+                # Add separator
+                f.write("\n\n\n\n\n\n\n")
+                
+                # Write compare prompt
+                compare_content = str(dual_step_prompt["compare_prompt"][c])
+                # Replace any literal \n with actual newlines
+                compare_content = compare_content.replace('\\n', '\n')
+                f.write(compare_content)
+'''

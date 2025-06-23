@@ -114,6 +114,7 @@ def answer_to_score(answer, return_type):
             return -1.0
     '''
 
+
     if return_type == "bool":
         prompt = """You are a code correctness analyzer. Your task is to analyze the given code analysis and determine if the code is correct or not.
 
@@ -127,6 +128,7 @@ def answer_to_score(answer, return_type):
             print(f"Invalid answer: {result}")
             return -1.0
         return 'yes' in result.strip().lower()
+
 
     elif return_type == "score":
         for line in lines:
